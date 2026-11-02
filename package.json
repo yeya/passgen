@@ -1,6 +1,6 @@
 {
   "name": "passgen",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A fast, secure password and passphrase generator for Chrome, Edge and Firefox.",
   "scripts": {
     "dev": "wxt",
