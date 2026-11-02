@@ -82,6 +82,26 @@ Alternatively, bump `version` in `package.json` on `main` and use **Actions → 
 `vX.Y.Z` tag itself. Either way, the `Release` workflow runs the full CI and then publishes a GitHub Release with the Chrome, Edge and Firefox zips
 (plus the sources zip that Mozilla requires). It fails if the tag does not match the `package.json` version.
 
+### Publishing to the Chrome Web Store
+
+After the GitHub release is created, the `Submit to Chrome Web Store` job uploads that release's Chrome zip with
+`wxt submit` (Chrome Web Store API v2) and submits it for review. It is skipped until it is configured:
+
+1. Register a developer account at the [Chrome Web Store dashboard](https://chrome.google.com/webstore/devconsole)
+   (one-time fee), then upload the first version **by hand** and fill in the store listing. The API can only update an
+   item that already exists.
+2. Create a Google Cloud service account for the Chrome Web Store API, following
+   [Google's guide](https://developer.chrome.com/docs/webstore/service-accounts). Download its JSON key and add the
+   service account's email to your publisher in the dashboard.
+3. In GitHub → Settings:
+   - **Variables** (repository): `CHROME_EXTENSION_ID` (the item ID from the dashboard) and `CHROME_PUBLISHER_ID`
+     (from the dashboard URL, `…/devconsole/<publisher-id>`).
+   - **Environments** → create `chrome-web-store`, add the secrets `CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL` and
+     `CHROME_SERVICE_ACCOUNT_PRIVATE_KEY` (the `client_email` and `private_key` fields of the JSON key). Optionally add
+     yourself as a required reviewer so every submission waits for your approval.
+
+Each release needs a higher version than the one in the store.
+
 ### Loading the extension manually
 
 - **Chrome / Edge**: open `chrome://extensions` or `edge://extensions`, turn on _Developer mode_, click _Load unpacked_
