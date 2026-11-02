@@ -1,0 +1,153 @@
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --surface: #f4f5f8;
+  --border: #d5d8e0;
+  --text: #16181d;
+  --muted: #5b6170;
+  --accent: #3550d8;
+  --accent-text: #ffffff;
+  --accent-soft: #e6eaff;
+  --digit: #b4400f;
+  --symbol: #0d7a5f;
+  --danger: #b42318;
+  --s0: #c0392b;
+  --s1: #d9661f;
+  --s2: #c99a06;
+  --s3: #3f9d4a;
+  --s4: #1f7a39;
+  --radius: 8px;
+  --focus: 0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent);
+  --mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17191f;
+    --surface: #22252d;
+    --border: #3a3f4b;
+    --text: #eceef3;
+    --muted: #a3a9b7;
+    --accent: #8197ff;
+    --accent-text: #0d1020;
+    --accent-soft: #2a3160;
+    --digit: #ffab7a;
+    --symbol: #5fd6b4;
+    --danger: #ff8a80;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-block-size: 34px;
+  padding-inline: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.btn:hover {
+  border-color: var(--accent);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.btn-icon {
+  inline-size: 34px;
+  padding: 0;
+}
+
+.btn-link {
+  border: 0;
+  background: none;
+  color: var(--accent);
+  padding: 0;
+  min-block-size: auto;
+  text-decoration: underline;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.check input {
+  accent-color: var(--accent);
+  inline-size: 16px;
+  block-size: 16px;
+  margin: 0;
+}
+
+.field-label {
+  font-weight: 600;
+}
+
+.help {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 4px 0 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

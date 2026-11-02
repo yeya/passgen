@@ -1,0 +1,230 @@
+{
+  "extName": {
+    "message": "PassGen – Password Generator"
+  },
+  "extShortName": {
+    "message": "PassGen"
+  },
+  "extDescription": {
+    "message": "Strong, random passwords and passphrases in one click. Offline, private, no accounts."
+  },
+  "commandOpenPopup": {
+    "message": "Open PassGen"
+  },
+  "openSettings": {
+    "message": "Settings"
+  },
+  "modeLabel": {
+    "message": "Generator type"
+  },
+  "modePassword": {
+    "message": "Password"
+  },
+  "modePassphrase": {
+    "message": "Passphrase"
+  },
+  "generatedSecret": {
+    "message": "Generated secret"
+  },
+  "regenerate": {
+    "message": "Generate new"
+  },
+  "copy": {
+    "message": "Copy"
+  },
+  "copied": {
+    "message": "Copied"
+  },
+  "copiedWillClear": {
+    "message": "Copied. The clipboard will be cleared in $SECONDS$ seconds.",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "60"
+      }
+    }
+  },
+  "copyFailed": {
+    "message": "Could not copy to the clipboard."
+  },
+  "strengthLabel": {
+    "message": "Strength"
+  },
+  "strengthVeryWeak": {
+    "message": "Very weak"
+  },
+  "strengthWeak": {
+    "message": "Weak"
+  },
+  "strengthFair": {
+    "message": "Fair"
+  },
+  "strengthStrong": {
+    "message": "Strong"
+  },
+  "strengthVeryStrong": {
+    "message": "Very strong"
+  },
+  "entropyBits": {
+    "message": "$BITS$ bits",
+    "placeholders": {
+      "bits": {
+        "content": "$1",
+        "example": "128"
+      }
+    }
+  },
+  "length": {
+    "message": "Length"
+  },
+  "uppercase": {
+    "message": "Uppercase (A–Z)"
+  },
+  "lowercase": {
+    "message": "Lowercase (a–z)"
+  },
+  "digits": {
+    "message": "Digits (0–9)"
+  },
+  "symbols": {
+    "message": "Symbols (!@#…)"
+  },
+  "excludeAmbiguous": {
+    "message": "Avoid look-alike characters (I, l, 1, O, 0)"
+  },
+  "words": {
+    "message": "Words"
+  },
+  "separator": {
+    "message": "Separator"
+  },
+  "separatorHyphen": {
+    "message": "Hyphen (-)"
+  },
+  "separatorPeriod": {
+    "message": "Period (.)"
+  },
+  "separatorUnderscore": {
+    "message": "Underscore (_)"
+  },
+  "separatorSpace": {
+    "message": "Space"
+  },
+  "separatorComma": {
+    "message": "Comma (,)"
+  },
+  "capitalize": {
+    "message": "Capitalize words"
+  },
+  "includeNumber": {
+    "message": "Include a number"
+  },
+  "history": {
+    "message": "History"
+  },
+  "historyEmpty": {
+    "message": "Copied passwords will appear here until you close the browser."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "copyFromHistory": {
+    "message": "Copy $VALUE$",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "abc"
+      }
+    }
+  },
+  "settingsTitle": {
+    "message": "PassGen settings"
+  },
+  "settingsSaved": {
+    "message": "Settings are saved automatically."
+  },
+  "sectionClipboard": {
+    "message": "Clipboard"
+  },
+  "clipboardClear": {
+    "message": "Clear clipboard after copying"
+  },
+  "clipboardClearNever": {
+    "message": "Never"
+  },
+  "clipboardClearSeconds": {
+    "message": "After $SECONDS$ seconds",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "clipboardClearMinutes": {
+    "message": "After $MINUTES$ minutes",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "clipboardClearHelp": {
+    "message": "Overwrites the clipboard after the delay, even if you copied something else in the meantime."
+  },
+  "sectionHistory": {
+    "message": "History"
+  },
+  "historyEnable": {
+    "message": "Remember copied passwords"
+  },
+  "historyHelp": {
+    "message": "Kept in memory only and erased when the browser closes. Never written to disk."
+  },
+  "sectionSymbols": {
+    "message": "Symbols"
+  },
+  "symbolSet": {
+    "message": "Symbols to use in passwords"
+  },
+  "symbolSetHelp": {
+    "message": "Some sites only accept certain symbols. Letters, digits and spaces are ignored."
+  },
+  "resetSymbols": {
+    "message": "Restore default symbols"
+  },
+  "sectionShortcut": {
+    "message": "Keyboard shortcut"
+  },
+  "shortcutCurrent": {
+    "message": "Open PassGen with $SHORTCUT$, then press Enter to copy.",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Alt+Shift+G"
+      }
+    }
+  },
+  "shortcutNone": {
+    "message": "No shortcut is set."
+  },
+  "shortcutHelp": {
+    "message": "You can change it in your browser's extension shortcut settings."
+  },
+  "sectionReset": {
+    "message": "Reset"
+  },
+  "resetAll": {
+    "message": "Reset all settings"
+  },
+  "privacyNote": {
+    "message": "PassGen works entirely offline. It makes no network requests and collects no data."
+  },
+  "historyNotSynced": {
+    "message": "History is not synced. It stays in this browser on this device only, even though your other settings sync across browsers where you are signed in."
+  },
+  "settingsSynced": {
+    "message": "Settings sync across your devices through your browser account. History never does."
+  }
+}

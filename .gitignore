@@ -137,3 +137,14 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# WXT / extension build output
+.output/
+.wxt/
+web-ext.config.*
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

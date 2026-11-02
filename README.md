@@ -1,2 +1,127 @@
-# passgen
-A fast, secure password generator extension for Chrome and Edge. Built for users who take security seriously, PassGen delivers strong, customizable passwords right from your browser toolbar - no accounts, no cloud, no compromise.
+# PassGen
+
+A fast, secure password and passphrase generator for **Chrome**, **Edge** and **Firefox**. Strong, customizable
+secrets right from your browser toolbar: no accounts, no cloud, no network requests.
+
+## Features
+
+- **Passwords**: 4–128 characters; uppercase, lowercase, digits and symbols. Every enabled set is always present.
+  Optional "avoid look-alike characters" (`I l 1 O 0 …`) and a custom symbol set for sites with picky rules.
+- **Passphrases**: 3–20 words from the [EFF large word list](https://www.eff.org/dice) (7,776 words). Choice of
+  separator, optional capitalization and a random digit.
+- **Exact strength meter**: entropy in bits, computed exactly for the options chosen, plus a 5-level rating.
+- **Copy, then auto-clear**: the clipboard is cleared after 30 s – 5 min (default 60 s, or never).
+- **Keyboard first**: `Alt+Shift+G` opens the popup with **Copy** focused, so you press `Enter` and paste.
+- **Settings sync** across your devices through the browser's built-in `storage.sync`.
+- **History (opt-in, off by default)**: copied secrets are kept in memory only (`storage.session`). History is never
+  synced or written to disk, and is erased when the browser closes or the feature is turned off. The settings page
+  warns that history is not synced.
+- **Light and dark mode**, screen reader and keyboard accessible (checked with axe), ready for translation including
+  right-to-left languages.
+
+## Security design
+
+| Concern            | Approach                                                                                                                                                                                    |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Randomness         | `crypto.getRandomValues` only, with rejection sampling: no modulo bias. `Math.random` is banned by lint.                                                                                    |
+| Uniform output     | Passwords are drawn uniformly over the whole pool and redrawn until every required set appears. The result is uniform over valid passwords, so the reported entropy is exact.               |
+| Permissions        | `storage`, `alarms`, `clipboardWrite`, and `offscreen` on Chromium only. None of these shows an install warning. No host permissions, no content scripts, no access to the pages you visit. |
+| Network            | None. A strict CSP (`default-src 'self'`) blocks remote code, and an end-to-end test asserts zero network requests.                                                                         |
+| Storage            | Only settings are stored (synced). Secrets are stored only if you turn on history, and then only in memory.                                                                                 |
+| Message validation | The background accepts messages only from this extension, and only known message types with whitelisted values.                                                                             |
+| Word list          | Vendored, and a unit test verifies its SHA-256 against the official EFF file.                                                                                                               |
+
+See [PRIVACY.md](PRIVACY.md) for the privacy policy.
+
+## Browser support
+
+| Browser | Minimum version | Notes                                                                           |
+| ------- | --------------- | ------------------------------------------------------------------------------- |
+| Chrome  | 120             | Manifest V3 service worker; clipboard is cleared through an offscreen document. |
+| Edge    | 120             | Same Chromium build as Chrome.                                                  |
+| Firefox | 140 (ESR)       | Manifest V3 event page; clipboard is cleared from the background page.          |
+
+## Development
+
+Requires Node.js 22 or newer.
+
+```bash
+npm install
+```
+
+```bash
+npm run dev            # Chrome with hot reload
+```
+
+```bash
+npm run dev:firefox    # Firefox with hot reload
+```
+
+| Script                  | What it does                                                     |
+| ----------------------- | ---------------------------------------------------------------- |
+| `npm run build:all`     | Builds `.output/chrome-mv3`, `edge-mv3` and `firefox-mv3`        |
+| `npm run zip:all`       | Store-ready zips (plus the sources zip that Mozilla requires)    |
+| `npm run lint`          | ESLint (strict, JSDoc required) and Prettier                     |
+| `npm run lint:firefox`  | Builds for Firefox and runs Mozilla's `web-ext lint`             |
+| `npm test`              | Vitest unit and component tests                                  |
+| `npm run test:coverage` | The same with coverage, which must stay at or above 90% of lines |
+| `npm run test:e2e`      | Playwright end-to-end tests (run `build:all` first)              |
+| `npm run check`         | Everything CI runs                                               |
+| `npm run icons`         | Re-renders `public/icon/*.png` from `src/assets/icon.svg`        |
+
+### Loading the extension manually
+
+- **Chrome / Edge**: open `chrome://extensions` or `edge://extensions`, turn on _Developer mode_, click _Load unpacked_
+  and choose `.output/chrome-mv3` (or `edge-mv3`).
+- **Firefox**: open `about:debugging#/runtime/this-firefox`, click _Load Temporary Add-on_ and choose
+  `.output/firefox-mv3/manifest.json`.
+
+### Tech stack
+
+- [WXT](https://wxt.dev) builds and packages for each browser (Vite under the hood).
+- [Vue 3](https://vuejs.org) (`<script setup>`) for the UI.
+- **Plain JavaScript with JSDoc**. Types are documented in JSDoc, `jsconfig.json` gives editor type checking, and
+  ESLint enforces JSDoc on every function.
+
+### Project layout
+
+```
+src/
+  entrypoints/      popup, options page, background, offscreen (Chromium only)
+  components/       Vue components
+  composables/      useSettings (persisted, live-synced), useGenerator
+  lib/              framework-free core: random, password, passphrase, strength, settings, history, clipboard, i18n
+public/
+  _locales/en/      UI strings (add a folder to add a language)
+  icon/             toolbar and store icons
+tests/
+  unit/             Vitest tests (happy-dom + WXT fake browser)
+  e2e/              Playwright tests
+```
+
+## Testing strategy
+
+- **Unit (Vitest)**: the generators are checked with chi-square uniformity tests, a brute-force check of the entropy
+  formula, rejection-sampling behavior, settings validation against tampered storage, the storage area used
+  (sync vs session), and message validation in the background.
+- **Component (Vitest + Vue Test Utils)**: every component, the popup and the options page, including the
+  history-not-synced warning.
+- **End-to-end (Playwright)**:
+  - `chrome` and `edge`: load the real built extension into Chromium. They test copying with the keyboard, real
+    clipboard clearing through the offscreen document, persistence, that history stays only in `storage.session`,
+    that there are no network requests, and run axe accessibility scans.
+  - `firefox-pages`: runs the built Firefox pages in Gecko with an in-memory WebExtension API stub. Playwright cannot
+    install add-ons into Firefox; `web-ext lint` validates the Firefox package itself.
+  - `chromium-pages`: the same spec in Chromium, so it can run where Firefox is not installed.
+
+To run the tests with a Chromium that is already installed, set `CHROMIUM_EXECUTABLE_PATH`.
+
+## Roadmap
+
+- **Fill the password into the page** (right-click → "Fill generated password"). Planned if there is enough demand;
+  it needs the `contextMenus`, `activeTab` and `scripting` permissions, so it was left out of the first version to keep
+  permissions minimal. Please upvote the issue if you want it.
+
+## License
+
+[MIT](LICENSE). The EFF word list is © Electronic Frontier Foundation, [CC BY 3.0 US](https://creativecommons.org/licenses/by/3.0/us/).

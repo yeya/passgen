@@ -1,0 +1,64 @@
+{
+  "name": "passgen",
+  "version": "1.0.0",
+  "description": "A fast, secure password and passphrase generator for Chrome, Edge and Firefox.",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "dev:edge": "wxt -b edge",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "build:edge": "wxt build -b edge",
+    "build:all": "npm run build && npm run build:edge && npm run build:firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "zip:edge": "wxt zip -b edge",
+    "zip:all": "npm run zip && npm run zip:edge && npm run zip:firefox",
+    "postinstall": "wxt prepare",
+    "icons": "node scripts/generate-icons.mjs",
+    "lint": "eslint . && prettier --check .",
+    "lint:fix": "eslint . --fix && prettier --write .",
+    "lint:firefox": "npm run build:firefox && web-ext lint --source-dir .output/firefox-mv3",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "check": "npm run lint && npm run test:coverage && npm run build:all && web-ext lint --source-dir .output/firefox-mv3 && npm run test:e2e"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeya/passgen.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yeya/passgen/issues"
+  },
+  "homepage": "https://github.com/yeya/passgen#readme",
+  "dependencies": {
+    "vue": "^3.5.44"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "@vitest/coverage-v8": "^5.1.0",
+    "@vue/test-utils": "^2.5.1",
+    "@wxt-dev/module-vue": "^1.0.3",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsdoc": "^65.4.2",
+    "eslint-plugin-vue": "^10.12.0",
+    "globals": "^17.14.0",
+    "happy-dom": "^21.0.4",
+    "prettier": "^3.9.10",
+    "vitest": "^5.1.0",
+    "web-ext": "^10.8.0",
+    "wxt": "^0.21.5"
+  },
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  }
+}
