@@ -1,9 +1,10 @@
 /**
  * Optional history of copied secrets.
  *
- * Off by default. When enabled, entries are kept in `storage.session`, which
- * lives in memory only, is never written to disk or synced, is not reachable
- * from content scripts, and is wiped when the browser closes.
+ * Off by default. When enabled, entries are kept in `storage.local`: on this
+ * device only, never synced, and kept across browser restarts until the user
+ * clears the history or turns it off. The data is not encrypted, which the
+ * settings page tells the user.
  */
 
 import { storage } from 'wxt/utils/storage';
@@ -16,7 +17,7 @@ import { HISTORY_LIMIT } from './constants.js';
  * @property {number} createdAt Unix time in milliseconds.
  */
 
-const historyItem = storage.defineItem('session:history', {
+const historyItem = storage.defineItem('local:history', {
   fallback: /** @type {HistoryEntry[]} */ ([]),
 });
 

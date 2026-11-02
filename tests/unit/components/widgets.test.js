@@ -148,7 +148,7 @@ describe('PassphraseOptions', () => {
 describe('HistoryList', () => {
   it('shows a hint when empty', () => {
     const wrapper = mount(HistoryList, { props: { entries: [] } });
-    expect(wrapper.text()).toContain('Copied passwords will appear here');
+    expect(wrapper.text()).toContain('Passwords you copy will appear here');
     expect(wrapper.find('[data-testid="clear-history"]').exists()).toBe(false);
   });
 

@@ -15,14 +15,14 @@ describe('history', () => {
     expect(await getHistory()).toEqual([]);
   });
 
-  it('stores entries newest first in session storage only', async () => {
+  it('stores entries newest first in local storage only (never synced)', async () => {
     await addToHistory(entry('a', 1));
     await addToHistory(entry('b', 2));
     expect((await getHistory()).map((e) => e.value)).toEqual(['b', 'a']);
 
-    expect(Object.keys(await fakeBrowser.storage.session.get(null))).toEqual(['history']);
+    expect(Object.keys(await fakeBrowser.storage.local.get(null))).toEqual(['history']);
     expect(await fakeBrowser.storage.sync.get(null)).toEqual({});
-    expect(await fakeBrowser.storage.local.get(null)).toEqual({});
+    expect(await fakeBrowser.storage.session.get(null)).toEqual({});
   });
 
   it('moves duplicates to the front instead of repeating them', async () => {
@@ -45,13 +45,13 @@ describe('history', () => {
     await addToHistory(entry('a'));
     await clearHistory();
     expect(await getHistory()).toEqual([]);
-    expect(await fakeBrowser.storage.session.get(null)).toEqual({});
+    expect(await fakeBrowser.storage.local.get(null)).toEqual({});
   });
 
   it('ignores malformed stored data', async () => {
-    await fakeBrowser.storage.session.set({ history: [entry('ok'), { value: 1 }, null, 'x'] });
+    await fakeBrowser.storage.local.set({ history: [entry('ok'), { value: 1 }, null, 'x'] });
     expect(await getHistory()).toEqual([entry('ok')]);
-    await fakeBrowser.storage.session.set({ history: 'nope' });
+    await fakeBrowser.storage.local.set({ history: 'nope' });
     expect(await getHistory()).toEqual([]);
   });
 });

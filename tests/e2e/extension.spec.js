@@ -124,7 +124,7 @@ test.describe('popup', () => {
 });
 
 test.describe('settings and history', () => {
-  test('history is off by default, warns it is not synced, and lives in session storage only', async ({
+  test('history is off by default, warns it is not safe or synced, and lives in local storage only', async ({
     context,
     openPopup,
     openOptions,
@@ -139,6 +139,7 @@ test.describe('settings and history', () => {
     await expect(options.getByTestId('history-not-synced')).toHaveCount(0);
     await options.getByTestId('history-enabled').check();
     await expect(options.getByTestId('history-not-synced')).toContainText('not synced');
+    await expect(options.getByTestId('history-not-synced')).toContainText('unencrypted');
 
     popup = await openPopup();
     const secret = (await popup.getByTestId('secret').textContent()) ?? '';
@@ -148,13 +149,18 @@ test.describe('settings and history', () => {
     const storage = await readStorage();
     expect(storage.sync.settings.historyEnabled).toBe(true);
     expect(JSON.stringify(storage.sync)).not.toContain(secret);
-    expect(JSON.stringify(storage.local)).not.toContain(secret);
-    expect(storage.session.history[0].value).toBe(secret);
+    expect(JSON.stringify(storage.session)).not.toContain(secret);
+    expect(storage.local.history[0].value).toBe(secret);
+
+    // History survives closing and reopening the popup.
+    await popup.close();
+    popup = await openPopup();
+    await expect(popup.getByTestId('history')).toContainText(secret);
 
     // Turning history off erases it.
     await options.bringToFront();
     await options.getByTestId('history-enabled').uncheck();
-    await expect.poll(async () => (await readStorage()).session.history).toBeUndefined();
+    await expect.poll(async () => (await readStorage()).local.history).toBeUndefined();
   });
 
   test('settings sync storage holds the chosen options', async ({ openOptions, readStorage }) => {

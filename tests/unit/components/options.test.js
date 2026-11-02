@@ -38,7 +38,7 @@ describe('options page', () => {
     expect(wrapper.get('[data-testid="shortcut"]').text()).toBe('No shortcut is set.');
   });
 
-  it('warns that history is not synced only while history is enabled', async () => {
+  it('warns that history is unencrypted and not synced, only while history is enabled', async () => {
     const wrapper = await mountOptions();
     expect(wrapper.find('[data-testid="history-not-synced"]').exists()).toBe(false);
     await wrapper.get('[data-testid="history-enabled"]').setValue(true);
@@ -46,6 +46,7 @@ describe('options page', () => {
     expect((await loadSettings()).historyEnabled).toBe(true);
     const warning = wrapper.get('[data-testid="history-not-synced"]');
     expect(warning.text()).toContain('not synced');
+    expect(warning.text()).toContain('unencrypted');
     expect(warning.attributes('role')).toBe('alert');
   });
 

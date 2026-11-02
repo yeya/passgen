@@ -117,7 +117,7 @@
     "message": "History"
   },
   "historyEmpty": {
-    "message": "Copied passwords will appear here until you close the browser."
+    "message": "Passwords you copy will appear here."
   },
   "clearHistory": {
     "message": "Clear history"
@@ -144,7 +144,7 @@
     "message": "Remember copied passwords"
   },
   "historyHelp": {
-    "message": "Kept in memory only and erased when the browser closes. Never written to disk."
+    "message": "Saves the passwords you copy in this browser, so you can find them again later. Turning this off deletes the saved history."
   },
   "sectionSymbols": {
     "message": "Symbols"
@@ -186,7 +186,7 @@
     "message": "PassGen works entirely offline. It makes no network requests and collects no data."
   },
   "historyNotSynced": {
-    "message": "History is not synced. It stays in this browser on this device only, even though your other settings sync across browsers where you are signed in."
+    "message": "Not secure: history is saved unencrypted on this device, and anyone with access to this browser profile can read it. It is not synced to your other devices, even though your other settings are."
   },
   "settingsSynced": {
     "message": "Settings sync across your devices through your browser account. History never does."

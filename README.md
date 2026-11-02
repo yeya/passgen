@@ -13,9 +13,9 @@ secrets right from your browser toolbar: no accounts, no cloud, no network reque
 - **One-click copy**: nothing else touches your clipboard.
 - **Keyboard first**: `Alt+Shift+G` opens the popup with **Copy** focused, so you press `Enter` and paste.
 - **Settings sync** across your devices through the browser's built-in `storage.sync`.
-- **History (opt-in, off by default)**: copied secrets are kept in memory only (`storage.session`). History is never
-  synced or written to disk, and is erased when the browser closes or the feature is turned off. The settings page
-  warns that history is not synced.
+- **History (opt-in, off by default)**: copied secrets are saved in `storage.local` on this device, kept across browser
+  restarts until you clear them or turn history off. It is never synced. The settings page warns that it is stored
+  unencrypted and is not synced.
 - **Light and dark mode**, screen reader and keyboard accessible (checked with axe), ready for translation including
   right-to-left languages.
 
@@ -27,7 +27,7 @@ secrets right from your browser toolbar: no accounts, no cloud, no network reque
 | Uniform output | Passwords are drawn uniformly over the whole pool and redrawn until every required set appears. The result is uniform over valid passwords, so the reported entropy is exact. |
 | Permissions    | `storage` only, which shows no install warning. No background script, no host permissions, no content scripts, no access to the pages you visit.                              |
 | Network        | None. A strict CSP (`default-src 'self'`) blocks remote code, and an end-to-end test asserts zero network requests.                                                           |
-| Storage        | Only settings are stored (synced). Secrets are stored only if you turn on history, and then only in memory.                                                                   |
+| Storage        | Only settings are stored (synced). Secrets are stored only if you turn on history, and then only on this device (`storage.local`, not encrypted).                             |
 | Word list      | Vendored, and a unit test verifies its SHA-256 against the official EFF file.                                                                                                 |
 
 See [PRIVACY.md](PRIVACY.md) for the privacy policy.
@@ -116,12 +116,12 @@ tests/
 
 - **Unit (Vitest)**: the generators are checked with chi-square uniformity tests, a brute-force check of the entropy
   formula, rejection-sampling behavior, settings validation against tampered storage, the storage area used
-  (sync vs session).
+  (sync vs local).
 - **Component (Vitest + Vue Test Utils)**: every component, the popup and the options page, including the
   history-not-synced warning.
 - **End-to-end (Playwright)**:
   - `chrome` and `edge`: load the real built extension into Chromium. They test copying with the keyboard, real
-    the real clipboard, that the Copy button and popup never change size, persistence, that history stays only in `storage.session`,
+    the real clipboard, that the Copy button and popup never change size, persistence, that history stays only in `storage.local`,
     that there are no network requests, and run axe accessibility scans.
   - `firefox-pages`: runs the built Firefox pages in Gecko with an in-memory WebExtension API stub. Playwright cannot
     install add-ons into Firefox; `web-ext lint` validates the Firefox package itself.
