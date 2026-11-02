@@ -37,6 +37,17 @@ test.describe('popup', () => {
     await expect(popup.getByRole('heading', { name: 'PassGen' })).toBeVisible();
   });
 
+  test('the Copy button keeps its size when it switches to "Copied"', async ({ context, openPopup }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    const popup = await openPopup();
+    const button = popup.getByTestId('copy');
+    const before = await button.boundingBox();
+    await button.click();
+    await expect(button).toHaveAttribute('data-copied', 'true');
+    await expect(button).toHaveAccessibleName('Copied');
+    expect(await button.boundingBox()).toEqual(before);
+  });
+
   test('regenerates and reacts to option changes', async ({ openPopup }) => {
     const popup = await openPopup();
     const secret = popup.getByTestId('secret');

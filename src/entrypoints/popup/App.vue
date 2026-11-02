@@ -134,9 +134,20 @@ onBeforeUnmount(() => clearTimeout(copiedTimer));
         >
           <AppIcon name="refresh" />
         </button>
-        <button ref="copyButton" type="button" class="btn btn-primary" data-testid="copy" @click="copy(secret)">
+        <button
+          ref="copyButton"
+          type="button"
+          class="btn btn-primary"
+          data-testid="copy"
+          :data-copied="copied"
+          @click="copy(secret)"
+        >
           <AppIcon :name="copied ? 'check' : 'copy'" />
-          {{ copied ? t('copied') : t('copy') }}
+          <!-- Both labels share one grid cell so the button keeps the width of the longer one. -->
+          <span class="label-stack">
+            <span :class="{ invisible: copied }">{{ t('copy') }}</span>
+            <span :class="{ invisible: !copied }">{{ t('copied') }}</span>
+          </span>
         </button>
       </div>
     </div>
@@ -182,6 +193,19 @@ h1 {
 .buttons {
   display: flex;
   gap: 6px;
+}
+
+.label-stack {
+  display: grid;
+}
+
+.label-stack > span {
+  grid-area: 1 / 1;
+  text-align: center;
+}
+
+.invisible {
+  visibility: hidden;
 }
 
 .status {

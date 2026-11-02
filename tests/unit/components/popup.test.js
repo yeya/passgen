@@ -47,6 +47,16 @@ describe('popup', () => {
     expect(wrapper.find('[data-testid="history"]').exists()).toBe(false);
   });
 
+  it('keeps both button labels rendered so the button never changes size', async () => {
+    const wrapper = await mountPopup();
+    const labels = wrapper.findAll('[data-testid="copy"] .label-stack > span');
+    expect(labels.map((l) => l.text())).toEqual(['Copy', 'Copied']);
+    expect(labels.map((l) => l.classes('invisible'))).toEqual([false, true]);
+    await wrapper.get('[data-testid="copy"]').trigger('click');
+    await flushPromises();
+    expect(labels.map((l) => l.classes('invisible'))).toEqual([true, false]);
+  });
+
   it('regenerates on demand', async () => {
     const wrapper = await mountPopup();
     const first = secretOf(wrapper);
@@ -62,7 +72,7 @@ describe('popup', () => {
     expect(writeText).toHaveBeenCalledWith(secret);
     expect(sendMessage).toHaveBeenCalledWith({ type: MESSAGES.SCHEDULE_CLIPBOARD_CLEAR, seconds: 60 });
     expect(wrapper.get('[data-testid="status"]').text()).toContain('cleared in 60 seconds');
-    expect(wrapper.get('[data-testid="copy"]').text()).toBe('Copied');
+    expect(wrapper.get('[data-testid="copy"]').attributes('data-copied')).toBe('true');
     expect(await getHistory()).toEqual([]);
   });
 
@@ -71,10 +81,10 @@ describe('popup', () => {
     const wrapper = await mountPopup();
     await wrapper.get('[data-testid="copy"]').trigger('click');
     await flushPromises();
-    expect(wrapper.get('[data-testid="copy"]').text()).toBe('Copied');
+    expect(wrapper.get('[data-testid="copy"]').attributes('data-copied')).toBe('true');
     vi.advanceTimersByTime(1600);
     await flushPromises();
-    expect(wrapper.get('[data-testid="copy"]').text()).toBe('Copy');
+    expect(wrapper.get('[data-testid="copy"]').attributes('data-copied')).toBe('false');
     vi.useRealTimers();
   });
 
