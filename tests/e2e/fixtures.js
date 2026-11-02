@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+import { realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { test as base, chromium } from '@playwright/test';
 
@@ -7,7 +9,7 @@ import { test as base, chromium } from '@playwright/test';
  * @type {import('@playwright/test').TestType<
  *   import('@playwright/test').PlaywrightTestArgs & import('@playwright/test').PlaywrightTestOptions & {
  *     extensionId: string,
- *     serviceWorker: import('@playwright/test').Worker,
+ *     readStorage: () => Promise<{ sync: Record<string, any>, local: Record<string, any>, session: Record<string, any> }>,
  *     openPopup: () => Promise<import('@playwright/test').Page>,
  *     openOptions: () => Promise<import('@playwright/test').Page>,
  *   },
@@ -31,14 +33,29 @@ export const test = base.extend({
     await context.close();
   },
 
-  serviceWorker: async ({ context }, use) => {
-    let [worker] = context.serviceWorkers();
-    worker ??= await context.waitForEvent('serviceworker');
-    await use(worker);
+  // Chromium derives an unpacked extension's id from its absolute path:
+  // SHA-256 of the path, first 32 hex digits mapped from 0-f to a-p.
+  extensionId: async ({ extensionPath }, use) => {
+    const hex = createHash('sha256')
+      .update(realpathSync(resolve(extensionPath)))
+      .digest('hex')
+      .slice(0, 32);
+    await use([...hex].map((c) => String.fromCharCode(97 + Number.parseInt(c, 16))).join(''));
   },
 
-  extensionId: async ({ serviceWorker }, use) => {
-    await use(new URL(serviceWorker.url()).host);
+  // Reads every storage area from an extension page, as the extension sees it.
+  readStorage: async ({ context, extensionId }, use) => {
+    await use(async () => {
+      const page = await context.newPage();
+      await page.goto(`chrome-extension://${extensionId}/options.html`);
+      const result = await page.evaluate(async () => ({
+        sync: await chrome.storage.sync.get(null),
+        local: await chrome.storage.local.get(null),
+        session: await chrome.storage.session.get(null),
+      }));
+      await page.close();
+      return result;
+    });
   },
 
   openPopup: async ({ context, extensionId }, use) => {
@@ -54,7 +71,7 @@ export const test = base.extend({
     await use(async () => {
       const page = await context.newPage();
       await page.goto(`chrome-extension://${extensionId}/options.html`);
-      await page.getByTestId('clipboard-clear').waitFor();
+      await page.getByTestId('history-enabled').waitFor();
       return page;
     });
   },

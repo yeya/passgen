@@ -24,17 +24,9 @@ async function mountOptions() {
 describe('options page', () => {
   it('shows the current settings and shortcut', async () => {
     const wrapper = await mountOptions();
-    expect(/** @type {HTMLSelectElement} */ (wrapper.get('[data-testid="clipboard-clear"]').element).value).toBe('60');
     expect(wrapper.get('[data-testid="history-enabled"]').element.checked).toBe(false);
     expect(wrapper.get('[data-testid="symbol-set"]').element.value).toBe(DEFAULT_SYMBOLS);
     expect(wrapper.get('[data-testid="shortcut"]').text()).toContain('Alt+Shift+G');
-    expect(wrapper.findAll('option').map((o) => o.text())).toEqual([
-      'Never',
-      'After 30 seconds',
-      'After 60 seconds',
-      'After 2 minutes',
-      'After 5 minutes',
-    ]);
   });
 
   it('says when no shortcut is set or the API is missing', async () => {
@@ -44,13 +36,6 @@ describe('options page', () => {
     fakeBrowser.commands = /** @type {any} */ ({ getAll: vi.fn().mockRejectedValue(new Error('nope')) });
     wrapper = await mountOptions();
     expect(wrapper.get('[data-testid="shortcut"]').text()).toBe('No shortcut is set.');
-  });
-
-  it('saves the clipboard delay', async () => {
-    const wrapper = await mountOptions();
-    await wrapper.get('[data-testid="clipboard-clear"]').setValue('0');
-    await flushPromises();
-    expect((await loadSettings()).clipboardClearSeconds).toBe(0);
   });
 
   it('warns that history is not synced only while history is enabled', async () => {
@@ -95,7 +80,7 @@ describe('options page', () => {
   });
 
   it('resets everything', async () => {
-    await saveSettings({ ...defaultSettings(), historyEnabled: true, clipboardClearSeconds: 300 });
+    await saveSettings({ ...defaultSettings(), historyEnabled: true, mode: 'passphrase' });
     await addToHistory({ value: 'x', mode: 'password', createdAt: 1 });
     const wrapper = await mountOptions();
     await wrapper.get('[data-testid="reset-all"]').trigger('click');

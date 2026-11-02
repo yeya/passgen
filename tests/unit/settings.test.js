@@ -14,7 +14,6 @@ describe('defaults', () => {
   it('has secure, private defaults', () => {
     const s = defaultSettings();
     expect(s.historyEnabled).toBe(false);
-    expect(s.clipboardClearSeconds).toBeGreaterThan(0);
     expect(s.password.length).toBeGreaterThanOrEqual(16);
     expect(s.password.symbolSet).toBe(DEFAULT_SYMBOLS);
     expect(s.passphrase.words).toBeGreaterThanOrEqual(6);
@@ -45,7 +44,6 @@ describe('normalizeSettings', () => {
         symbolSet: '#$',
       },
       passphrase: { words: 8, separator: ' ', capitalize: false, includeNumber: false },
-      clipboardClearSeconds: 0,
       historyEnabled: true,
     };
     expect(normalizeSettings(custom)).toEqual(custom);
@@ -56,7 +54,6 @@ describe('normalizeSettings', () => {
       mode: 'evil',
       password: { length: 9999, lowercase: 'yes', symbolSet: 'abc 123' },
       passphrase: { words: 1, separator: '<b>' },
-      clipboardClearSeconds: 7,
       historyEnabled: 'true',
     });
     expect(s.mode).toBe('password');
@@ -65,8 +62,11 @@ describe('normalizeSettings', () => {
     expect(s.password.symbolSet).toBe(DEFAULT_SYMBOLS);
     expect(s.passphrase.words).toBe(3);
     expect(s.passphrase.separator).toBe('-');
-    expect(s.clipboardClearSeconds).toBe(DEFAULT_SETTINGS.clipboardClearSeconds);
     expect(s.historyEnabled).toBe(false);
+  });
+
+  it('drops settings that no longer exist', () => {
+    expect(normalizeSettings({ clipboardClearSeconds: 60 })).not.toHaveProperty('clipboardClearSeconds');
   });
 
   it('rounds fractional numbers and rejects NaN', () => {

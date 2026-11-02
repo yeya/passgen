@@ -144,7 +144,6 @@ export function installWebExtensionStub({ messages }) {
     },
     i18n: { getMessage, getUILanguage: () => 'en' },
     commands: { getAll: async () => [{ name: '_execute_action', shortcut: 'Alt+Shift+G' }] },
-    alarms: { create() {}, clear: async () => true, onAlarm: { addListener() {} } },
   };
 
   // Record clipboard writes; Playwright cannot read the Firefox clipboard.

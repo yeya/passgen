@@ -3,10 +3,10 @@ import { ref, watch } from 'vue';
 import { browser } from 'wxt/browser';
 import { useSettings } from '../../composables/useSettings.js';
 import { DEFAULT_SYMBOLS, sanitizeSymbols } from '../../lib/charsets.js';
-import { checkedOf, valueOf } from '../../lib/dom.js';
+import { checkedOf } from '../../lib/dom.js';
 import { clearHistory } from '../../lib/history.js';
 import { t } from '../../lib/i18n.js';
-import { CLIPBOARD_CLEAR_OPTIONS, defaultSettings } from '../../lib/settings.js';
+import { defaultSettings } from '../../lib/settings.js';
 
 /** Public asset path; bound dynamically so the bundler does not try to import it. */
 const LOGO_URL = '/icon/48.png';
@@ -31,19 +31,6 @@ watch(
   },
   { immediate: true },
 );
-
-/**
- * @param {number} seconds Delay in seconds.
- * @returns {string} Localized option label.
- */
-function clearLabel(seconds) {
-  if (seconds === 0) {
-    return t('clipboardClearNever');
-  }
-  return seconds >= 120 && seconds % 60 === 0
-    ? t('clipboardClearMinutes', String(seconds / 60))
-    : t('clipboardClearSeconds', String(seconds));
-}
 
 /**
  * @param {Event} event Change event from the history checkbox.
@@ -95,20 +82,6 @@ async function resetAll() {
         <p class="help">{{ t('settingsSynced') }}</p>
       </div>
     </header>
-
-    <section>
-      <h2>{{ t('sectionClipboard') }}</h2>
-      <label class="field-label" for="clipboard-clear">{{ t('clipboardClear') }}</label>
-      <select
-        id="clipboard-clear"
-        data-testid="clipboard-clear"
-        :value="settings.clipboardClearSeconds"
-        @change="settings.clipboardClearSeconds = Number(valueOf($event))"
-      >
-        <option v-for="s in CLIPBOARD_CLEAR_OPTIONS" :key="s" :value="s">{{ clearLabel(s) }}</option>
-      </select>
-      <p class="help">{{ t('clipboardClearHelp') }}</p>
-    </section>
 
     <section>
       <h2>{{ t('sectionHistory') }}</h2>

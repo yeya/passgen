@@ -3,8 +3,6 @@ import { resolve } from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from './fixtures.js';
 
-const CLIPBOARD_ALARM = 'passgen:clear-clipboard';
-
 /**
  * Reads the system clipboard from an extension page.
  *
@@ -17,10 +15,11 @@ async function readClipboard(page) {
 }
 
 test.describe('manifest', () => {
-  test('requests only the minimal permissions and a strict CSP', ({ extensionPath }) => {
+  test('requests only the storage permission and a strict CSP', ({ extensionPath }) => {
     const manifest = JSON.parse(readFileSync(resolve(extensionPath, 'manifest.json'), 'utf8'));
     expect(manifest.manifest_version).toBe(3);
-    expect([...manifest.permissions].sort()).toEqual(['alarms', 'clipboardWrite', 'offscreen', 'storage']);
+    expect(manifest.permissions).toEqual(['storage']);
+    expect(manifest.background).toBeUndefined();
     expect(manifest.host_permissions).toBeUndefined();
     expect(manifest.content_scripts).toBeUndefined();
     expect(manifest.content_security_policy.extension_pages).toContain("script-src 'self'");
@@ -43,7 +42,7 @@ test.describe('popup', () => {
     const button = popup.getByTestId('copy');
     const before = await button.boundingBox();
     await button.click();
-    await expect(button).toHaveAttribute('data-copied', 'true');
+    await expect(button).toHaveAttribute('data-state', 'copied');
     await expect(button).toHaveAccessibleName('Copied');
     expect(await button.boundingBox()).toEqual(before);
   });
@@ -66,26 +65,18 @@ test.describe('popup', () => {
     await expect(popup.getByTestId('set-digits')).toBeDisabled();
   });
 
-  test('copies with the keyboard and clears the clipboard via the offscreen document', async ({
-    context,
-    openPopup,
-    serviceWorker,
-  }) => {
+  test('copies with the keyboard and leaves the clipboard alone afterwards', async ({ context, openPopup }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
     const popup = await openPopup();
     const secret = await popup.getByTestId('secret').textContent();
+    const height = (await popup.locator('main').boundingBox())?.height;
 
     await popup.keyboard.press('Enter');
-    await expect(popup.getByTestId('status')).toContainText('cleared in 60 seconds');
+    await expect(popup.getByTestId('copy')).toHaveAttribute('data-state', 'copied');
     expect(await readClipboard(popup)).toBe(secret);
-
-    // The background scheduled the alarm about 60 s ahead.
-    const alarm = await serviceWorker.evaluate((name) => chrome.alarms.get(name), CLIPBOARD_ALARM);
-    expect(alarm.scheduledTime - Date.now()).toBeGreaterThan(50_000);
-
-    // Fire it now instead of waiting a minute; the real handler runs.
-    await serviceWorker.evaluate((name) => chrome.alarms.create(name, { when: Date.now() }), CLIPBOARD_ALARM);
-    await expect.poll(() => readClipboard(popup), { timeout: 10_000 }).toBe('');
+    // No visible status line: the popup keeps its height.
+    expect((await popup.locator('main').boundingBox())?.height).toBe(height);
+    await expect(popup.getByTestId('status')).toHaveClass(/visually-hidden/);
   });
 
   test('remembers the passphrase mode and options across popup opens', async ({ openPopup }) => {
@@ -137,7 +128,7 @@ test.describe('settings and history', () => {
     context,
     openPopup,
     openOptions,
-    serviceWorker,
+    readStorage,
   }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
     let popup = await openPopup();
@@ -154,11 +145,7 @@ test.describe('settings and history', () => {
     await popup.getByTestId('copy').click();
     await expect(popup.getByTestId('history')).toContainText(secret);
 
-    const storage = await serviceWorker.evaluate(async () => ({
-      sync: await chrome.storage.sync.get(null),
-      local: await chrome.storage.local.get(null),
-      session: await chrome.storage.session.get(null),
-    }));
+    const storage = await readStorage();
     expect(storage.sync.settings.historyEnabled).toBe(true);
     expect(JSON.stringify(storage.sync)).not.toContain(secret);
     expect(JSON.stringify(storage.local)).not.toContain(secret);
@@ -167,19 +154,16 @@ test.describe('settings and history', () => {
     // Turning history off erases it.
     await options.bringToFront();
     await options.getByTestId('history-enabled').uncheck();
-    await expect
-      .poll(() => serviceWorker.evaluate(async () => (await chrome.storage.session.get('history')).history))
-      .toBeUndefined();
+    await expect.poll(async () => (await readStorage()).session.history).toBeUndefined();
   });
 
-  test('settings sync storage holds the chosen options', async ({ openOptions, serviceWorker }) => {
+  test('settings sync storage holds the chosen options', async ({ openOptions, readStorage }) => {
     const options = await openOptions();
-    await options.getByTestId('clipboard-clear').selectOption('300');
     await options.getByTestId('symbol-set').fill('#$%');
     await options.getByTestId('symbol-set').press('Tab');
     await expect
-      .poll(() => serviceWorker.evaluate(async () => (await chrome.storage.sync.get('settings')).settings))
-      .toMatchObject({ clipboardClearSeconds: 300, password: { symbolSet: '#$%' } });
+      .poll(async () => (await readStorage()).sync.settings)
+      .toMatchObject({ password: { symbolSet: '#$%' } });
   });
 
   test('options page has no detectable accessibility violations', async ({ openOptions }) => {

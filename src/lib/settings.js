@@ -10,9 +10,7 @@ import { DEFAULT_SYMBOLS, sanitizeSymbols } from './charsets.js';
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from './password.js';
 import { MAX_WORDS, MIN_WORDS, SEPARATORS } from './passphrase.js';
 
-import { CLIPBOARD_CLEAR_OPTIONS } from './constants.js';
-
-export { CLIPBOARD_CLEAR_OPTIONS, HISTORY_LIMIT } from './constants.js';
+export { HISTORY_LIMIT } from './constants.js';
 
 /**
  * @typedef {'password' | 'passphrase'} Mode
@@ -23,7 +21,6 @@ export { CLIPBOARD_CLEAR_OPTIONS, HISTORY_LIMIT } from './constants.js';
  * @property {Mode} mode Which generator the popup shows.
  * @property {import('./password.js').PasswordOptions} password Password generator options.
  * @property {import('./passphrase.js').PassphraseOptions} passphrase Passphrase generator options.
- * @property {number} clipboardClearSeconds Seconds before the clipboard is cleared after copying. 0 disables it.
  * @property {boolean} historyEnabled Keep copied secrets in a session-only history.
  */
 
@@ -45,7 +42,6 @@ export const DEFAULT_SETTINGS = Object.freeze({
     capitalize: true,
     includeNumber: true,
   }),
-  clipboardClearSeconds: 60,
   historyEnabled: false,
 });
 
@@ -133,10 +129,6 @@ export function normalizeSettings(input) {
       capitalize: bool(pp.capitalize, defaults.passphrase.capitalize),
       includeNumber: bool(pp.includeNumber, defaults.passphrase.includeNumber),
     },
-    clipboardClearSeconds:
-      typeof raw.clipboardClearSeconds === 'number' && CLIPBOARD_CLEAR_OPTIONS.includes(raw.clipboardClearSeconds)
-        ? raw.clipboardClearSeconds
-        : defaults.clipboardClearSeconds,
     historyEnabled: bool(raw.historyEnabled, defaults.historyEnabled),
   };
 

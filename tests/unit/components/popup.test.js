@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeBrowser } from 'wxt/testing/fake-browser';
 import App from '../../../src/entrypoints/popup/App.vue';
 import { getHistory } from '../../../src/lib/history.js';
-import { MESSAGES } from '../../../src/lib/messages.js';
 import { saveSettings, defaultSettings, loadSettings } from '../../../src/lib/settings.js';
 
 /** @type {import('vitest').Mock} */
@@ -50,11 +49,11 @@ describe('popup', () => {
   it('keeps both button labels rendered so the button never changes size', async () => {
     const wrapper = await mountPopup();
     const labels = wrapper.findAll('[data-testid="copy"] .label-stack > span');
-    expect(labels.map((l) => l.text())).toEqual(['Copy', 'Copied']);
-    expect(labels.map((l) => l.classes('invisible'))).toEqual([false, true]);
+    expect(labels.map((l) => l.text())).toEqual(['Copy', 'Copied', 'Failed']);
+    expect(labels.map((l) => l.classes('invisible'))).toEqual([false, true, true]);
     await wrapper.get('[data-testid="copy"]').trigger('click');
     await flushPromises();
-    expect(labels.map((l) => l.classes('invisible'))).toEqual([true, false]);
+    expect(labels.map((l) => l.classes('invisible'))).toEqual([true, false, true]);
   });
 
   it('regenerates on demand', async () => {
@@ -64,15 +63,16 @@ describe('popup', () => {
     expect(secretOf(wrapper)).not.toBe(first);
   });
 
-  it('copies, asks the background to clear the clipboard and does not keep history by default', async () => {
+  it('copies without messaging the background and keeps no history by default', async () => {
     const wrapper = await mountPopup();
     const secret = secretOf(wrapper);
     await wrapper.get('[data-testid="copy"]').trigger('click');
     await flushPromises();
     expect(writeText).toHaveBeenCalledWith(secret);
-    expect(sendMessage).toHaveBeenCalledWith({ type: MESSAGES.SCHEDULE_CLIPBOARD_CLEAR, seconds: 60 });
-    expect(wrapper.get('[data-testid="status"]').text()).toContain('cleared in 60 seconds');
-    expect(wrapper.get('[data-testid="copy"]').attributes('data-copied')).toBe('true');
+    expect(sendMessage).not.toHaveBeenCalled();
+    expect(wrapper.get('[data-testid="copy"]').attributes('data-state')).toBe('copied');
+    expect(wrapper.get('[data-testid="status"]').text()).toBe('Copied');
+    expect(wrapper.get('[data-testid="status"]').classes()).toContain('visually-hidden');
     expect(await getHistory()).toEqual([]);
   });
 
@@ -81,40 +81,22 @@ describe('popup', () => {
     const wrapper = await mountPopup();
     await wrapper.get('[data-testid="copy"]').trigger('click');
     await flushPromises();
-    expect(wrapper.get('[data-testid="copy"]').attributes('data-copied')).toBe('true');
+    expect(wrapper.get('[data-testid="copy"]').attributes('data-state')).toBe('copied');
     vi.advanceTimersByTime(1600);
     await flushPromises();
-    expect(wrapper.get('[data-testid="copy"]').attributes('data-copied')).toBe('false');
+    expect(wrapper.get('[data-testid="copy"]').attributes('data-state')).toBe('idle');
     vi.useRealTimers();
   });
 
-  it('does not schedule clearing when disabled', async () => {
-    await saveSettings({ ...defaultSettings(), clipboardClearSeconds: 0 });
-    const wrapper = await mountPopup();
-    await wrapper.get('[data-testid="copy"]').trigger('click');
-    await flushPromises();
-    expect(sendMessage).not.toHaveBeenCalled();
-    expect(wrapper.get('[data-testid="status"]').text()).toBe('Copied');
-  });
-
-  it('reports copy failures', async () => {
+  it('reports copy failures on the button', async () => {
     writeText.mockRejectedValue(new Error('denied'));
     const wrapper = await mountPopup();
     await wrapper.get('[data-testid="copy"]').trigger('click');
     await flushPromises();
+    const button = wrapper.get('[data-testid="copy"]');
+    expect(button.attributes('data-state')).toBe('failed');
+    expect(button.classes()).toContain('failed');
     expect(wrapper.get('[data-testid="status"]').text()).toBe('Could not copy to the clipboard.');
-    expect(wrapper.get('[data-testid="status"]').classes()).toContain('error');
-    expect(sendMessage).not.toHaveBeenCalled();
-  });
-
-  it('still copies if scheduling the clear fails', async () => {
-    sendMessage.mockRejectedValue(new Error('no background'));
-    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const wrapper = await mountPopup();
-    await wrapper.get('[data-testid="copy"]').trigger('click');
-    await flushPromises();
-    expect(writeText).toHaveBeenCalled();
-    expect(log).toHaveBeenCalled();
   });
 
   it('switches to passphrase mode and remembers it', async () => {

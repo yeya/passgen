@@ -35,17 +35,11 @@
   "copied": {
     "message": "Copied"
   },
-  "copiedWillClear": {
-    "message": "Copied. The clipboard will be cleared in $SECONDS$ seconds.",
-    "placeholders": {
-      "seconds": {
-        "content": "$1",
-        "example": "60"
-      }
-    }
-  },
   "copyFailed": {
     "message": "Could not copy to the clipboard."
+  },
+  "copyFailedShort": {
+    "message": "Failed"
   },
   "strengthLabel": {
     "message": "Strength"
@@ -142,36 +136,6 @@
   },
   "settingsSaved": {
     "message": "Settings are saved automatically."
-  },
-  "sectionClipboard": {
-    "message": "Clipboard"
-  },
-  "clipboardClear": {
-    "message": "Clear clipboard after copying"
-  },
-  "clipboardClearNever": {
-    "message": "Never"
-  },
-  "clipboardClearSeconds": {
-    "message": "After $SECONDS$ seconds",
-    "placeholders": {
-      "seconds": {
-        "content": "$1",
-        "example": "30"
-      }
-    }
-  },
-  "clipboardClearMinutes": {
-    "message": "After $MINUTES$ minutes",
-    "placeholders": {
-      "minutes": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "clipboardClearHelp": {
-    "message": "Overwrites the clipboard after the delay, even if you copied something else in the meantime."
   },
   "sectionHistory": {
     "message": "History"

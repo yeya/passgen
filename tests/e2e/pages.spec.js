@@ -76,17 +76,16 @@ const test = base.extend({
  */
 const recorded = (page) => page.evaluate(() => /** @type {any} */ (globalThis).__webextRecord);
 
-test('the Firefox manifest is valid MV3 with Gecko settings and no offscreen permission', ({ pagesPath }) => {
+test('the Firefox manifest is valid MV3 with Gecko settings and only the storage permission', ({ pagesPath }) => {
   const manifest = JSON.parse(readFileSync(resolve(pagesPath, 'manifest.json'), 'utf8'));
   expect(manifest.manifest_version).toBe(3);
-  expect(manifest.background.scripts).toEqual(['background.js']);
-  expect(manifest.background.service_worker).toBeUndefined();
-  expect([...manifest.permissions].sort()).toEqual(['alarms', 'clipboardWrite', 'storage']);
+  expect(manifest.background).toBeUndefined();
+  expect(manifest.permissions).toEqual(['storage']);
   expect(manifest.browser_specific_settings.gecko.id).toBeTruthy();
   expect(manifest.browser_specific_settings.gecko.data_collection_permissions).toEqual({ required: ['none'] });
 });
 
-test('popup generates, copies and schedules clipboard clearing', async ({ open }) => {
+test('popup generates and copies without messaging anything else', async ({ open }) => {
   const popup = await open('popup.html');
   const secret = popup.getByTestId('secret');
   await expect(secret).toHaveText(/^.{20}$/);
@@ -94,10 +93,10 @@ test('popup generates, copies and schedules clipboard clearing', async ({ open }
 
   const value = await secret.textContent();
   await popup.getByTestId('copy').click();
-  await expect(popup.getByTestId('status')).toContainText('cleared in 60 seconds');
+  await expect(popup.getByTestId('copy')).toHaveAttribute('data-state', 'copied');
   const calls = await recorded(popup);
   expect(calls.clipboardWrites).toEqual([value]);
-  expect(calls.sentMessages).toEqual([{ type: 'passgen:schedule-clipboard-clear', seconds: 60 }]);
+  expect(calls.sentMessages).toEqual([]);
 
   await popup.getByTestId('regenerate').click();
   await expect(secret).not.toHaveText(value ?? '');

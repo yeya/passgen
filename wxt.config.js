@@ -14,11 +14,10 @@ export default defineConfig({
     default_locale: 'en',
     icons: ICONS,
     action: { default_icon: ICONS, default_title: '__MSG_extShortName__' },
-    // storage: settings and session-only history. alarms: delayed clipboard
-    // clearing. clipboardWrite: clear the clipboard from the background.
-    // offscreen (Chromium only): DOM access for clearing the clipboard.
-    // None of these trigger an install-time permission warning.
-    permissions: ['storage', 'alarms', 'clipboardWrite', ...(browser === 'firefox' ? [] : ['offscreen'])],
+    // storage: settings and the optional history. It is the only permission and
+    // shows no install-time warning. Copying needs none: it happens in the popup
+    // on a click.
+    permissions: ['storage'],
     commands: {
       _execute_action: {
         suggested_key: { default: 'Alt+Shift+G' },
