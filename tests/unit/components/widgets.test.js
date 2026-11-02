@@ -161,7 +161,10 @@ describe('HistoryList', () => {
     expect(wrapper.findAll('li').map((li) => li.text())).toEqual(['first', 'second']);
     await wrapper.findAll('li button')[1].trigger('click');
     expect(wrapper.emitted('copy')).toEqual([['second']]);
-    await wrapper.get('[data-testid="clear-history"]').trigger('click');
+    const clear = wrapper.get('[data-testid="clear-history"]');
+    expect(clear.find('svg.icon').exists()).toBe(true);
+    expect(clear.text()).toBe('Clear history');
+    await clear.trigger('click');
     expect(wrapper.emitted('clear')).toHaveLength(1);
   });
 });

@@ -21,10 +21,11 @@ const emit = defineEmits({
       <button
         v-if="entries.length > 0"
         type="button"
-        class="btn-link"
+        class="btn btn-small"
         data-testid="clear-history"
         @click="emit('clear')"
       >
+        <AppIcon name="trash" />
         {{ t('clearHistory') }}
       </button>
     </div>
@@ -55,12 +56,13 @@ const emit = defineEmits({
 .head {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
+  margin-block-end: 6px;
 }
 
 h2 {
   font-size: 13px;
-  margin: 0 0 6px;
+  margin: 0;
 }
 
 ul {
@@ -92,5 +94,17 @@ code {
 .btn-icon {
   inline-size: 28px;
   min-block-size: 28px;
+}
+
+.btn-small {
+  min-block-size: 28px;
+  padding-inline: 8px;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.btn-small :deep(.icon) {
+  inline-size: 14px;
+  block-size: 14px;
 }
 </style>
