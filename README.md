@@ -79,7 +79,8 @@ npm version minor        # or patch / major: bumps package.json, commits and tag
 git push --follow-tags
 ```
 
-The `Release` workflow runs the full CI and then publishes a GitHub Release with the Chrome, Edge and Firefox zips
+Alternatively, bump `version` in `package.json` on `main` and use **Actions → Release → Run workflow**; it creates the
+`vX.Y.Z` tag itself. Either way, the `Release` workflow runs the full CI and then publishes a GitHub Release with the Chrome, Edge and Firefox zips
 (plus the sources zip that Mozilla requires). It fails if the tag does not match the `package.json` version.
 
 ### Loading the extension manually
