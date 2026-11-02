@@ -23,7 +23,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "check": "npm run lint && npm run test:coverage && npm run build:all && web-ext lint --source-dir .output/firefox-mv3 && npm run test:e2e"
+    "check": "npm run lint && npm run test:coverage && npm run build:all && web-ext lint --source-dir .output/firefox-mv3 && npm run test:e2e",
+    "store-assets": "node scripts/store-assets.mjs"
   },
   "repository": {
     "type": "git",
