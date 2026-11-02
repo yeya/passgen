@@ -69,6 +69,19 @@ npm run dev:firefox    # Firefox with hot reload
 | `npm run check`         | Everything CI runs                                               |
 | `npm run icons`         | Re-renders `public/icon/*.png` from `src/assets/icon.svg`        |
 
+### Releasing
+
+```bash
+npm version minor        # or patch / major: bumps package.json, commits and tags vX.Y.Z
+```
+
+```bash
+git push --follow-tags
+```
+
+The `Release` workflow runs the full CI and then publishes a GitHub Release with the Chrome, Edge and Firefox zips
+(plus the sources zip that Mozilla requires). It fails if the tag does not match the `package.json` version.
+
 ### Loading the extension manually
 
 - **Chrome / Edge**: open `chrome://extensions` or `edge://extensions`, turn on _Developer mode_, click _Load unpacked_

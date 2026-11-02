@@ -5,12 +5,13 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -73,4 +74,7 @@ jobs:
         with:
           name: extension-packages
           path: .output/*.zip
+          # .output/ starts with a dot, which upload-artifact skips by default.
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 30
