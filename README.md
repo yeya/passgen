@@ -102,6 +102,19 @@ After the GitHub release is created, the `Submit to Chrome Web Store` job upload
 
 Each release needs a higher version than the one in the store.
 
+### Publishing to Firefox Add-ons
+
+The `Submit to Firefox Add-ons` job uploads the release's Firefox zip and sources zip to addons.mozilla.org (listed
+channel). It is skipped until it is configured:
+
+1. Submit the first version **by hand** at the [Firefox Add-on Developer Hub](https://addons.mozilla.org/developers/).
+2. Create API credentials at [Manage API Keys](https://addons.mozilla.org/developers/addon/api/key/).
+3. In GitHub → Settings:
+   - **Variables** (repository): `FIREFOX_EXTENSION_ID`, the value in the Developer Hub edit URL
+     (`…/developers/addon/<extension-id>/edit`).
+   - **Environments** → create `firefox-add-ons`, add the secrets `FIREFOX_JWT_ISSUER` and `FIREFOX_JWT_SECRET` (the
+     JWT issuer and JWT secret from the API key page). Optionally add yourself as a required reviewer.
+
 ### Loading the extension manually
 
 - **Chrome / Edge**: open `chrome://extensions` or `edge://extensions`, turn on _Developer mode_, click _Load unpacked_

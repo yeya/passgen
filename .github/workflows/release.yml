@@ -86,3 +86,34 @@ jobs:
           CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL: ${{ secrets.CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL }}
           CHROME_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY }}
         run: npx wxt submit --chrome-zip release/*-chrome.zip
+
+  # Uploads the Firefox zip and the sources zip (Mozilla reviews the source of
+  # bundled code) from the GitHub release to addons.mozilla.org. Skipped until
+  # the FIREFOX_EXTENSION_ID repository variable is set.
+  submit-firefox:
+    name: Submit to Firefox Add-ons
+    needs: release
+    if: vars.FIREFOX_EXTENSION_ID != ''
+    runs-on: ubuntu-latest
+    environment: firefox-add-ons
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Download the released Firefox and sources zips
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release.outputs.tag }}
+        run: gh release download "${TAG}" --pattern '*-firefox.zip' --pattern '*-sources.zip' --dir release
+      - name: Submit
+        env:
+          FIREFOX_EXTENSION_ID: ${{ vars.FIREFOX_EXTENSION_ID }}
+          FIREFOX_CHANNEL: listed
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+        run: npx wxt submit --firefox-zip release/*-firefox.zip --firefox-sources-zip release/*-sources.zip
